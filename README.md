@@ -20,13 +20,11 @@
 ## 演示
 
 <p align="center">
-  <img src="docs/demo-select.png" alt="选中文字触发验证" width="380">
-  &nbsp;&nbsp;
-  <img src="docs/demo-result.png" alt="验证结果展示" width="380">
+  <img src="docs/demo-result.png" alt="Ask Twice 验证演示" width="820">
 </p>
 
 <p align="center">
-  <em>① 选中 AI 回答中的文字 → ② 点击验证 → ③ 查看综合分析和来源</em>
+  <em>选中 AI 回答中的文字 → 自动验证 → 展示评分、来源和交叉验证分析</em>
 </p>
 
 ## 功能
