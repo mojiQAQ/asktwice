@@ -1,0 +1,612 @@
+/*
+ * Ask Twice — 注入到 AI 页面的样式
+ * 所有 class 名以 asktwice- 为前缀，避免与宿主页面冲突
+ */
+
+/* ═══════ 浮标按钮 ═══════ */
+.asktwice-float-wrapper {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.asktwice-float-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(79, 70, 229, 0.08);
+  color: #4F46E5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 0;
+  opacity: 0.6;
+  backdrop-filter: blur(4px);
+}
+
+.asktwice-float-btn:hover {
+  opacity: 1;
+  background: rgba(79, 70, 229, 0.15);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+.asktwice-float-btn:active {
+  transform: scale(0.95);
+}
+
+/* 加载中旋转动画 */
+.asktwice-loading {
+  opacity: 1 !important;
+  pointer-events: none;
+}
+
+.asktwice-loading svg {
+  animation: asktwice-spin 1s linear infinite;
+}
+
+@keyframes asktwice-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 有结果后的状态 */
+.asktwice-has-result {
+  width: auto;
+  padding: 4px 10px;
+  opacity: 1;
+  background: var(--asktwice-color, #4F46E5);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.asktwice-has-result svg {
+  width: 14px;
+  height: 14px;
+}
+
+.asktwice-score {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 错误状态 */
+.asktwice-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+/* ═══════ 结果卡片 ═══════ */
+.asktwice-result-card {
+  position: relative;
+  width: 320px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  font-size: 13px;
+  color: #1F2937;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.asktwice-card-show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.asktwice-card-hide {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+}
+
+/* 卡片头部 — 评分 */
+.asktwice-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.asktwice-card-score {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.asktwice-card-score-num {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.asktwice-card-score-label {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.asktwice-card-close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #F3F4F6;
+  color: #9CA3AF;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.asktwice-card-close:hover {
+  background: #E5E7EB;
+  color: #4B5563;
+}
+
+/* 声明列表 */
+.asktwice-card-claims {
+  padding: 8px 16px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.asktwice-card-claim {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #F9FAFB;
+}
+
+.asktwice-card-claim:last-child {
+  border-bottom: none;
+}
+
+.asktwice-claim-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.asktwice-claim-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.asktwice-claim-text {
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.asktwice-claim-meta {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+.asktwice-card-empty {
+  padding: 16px 0;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 12px;
+}
+
+/* 利益冲突提示 */
+.asktwice-card-conflict {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.asktwice-card-conflict-icon {
+  font-size: 14px;
+}
+
+/* 卡片底部 */
+.asktwice-card-footer {
+  padding: 8px 16px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.asktwice-card-powered {
+  font-size: 10px;
+  color: #D1D5DB;
+  letter-spacing: 0.02em;
+}
+
+/* ═══════ 划词弹出气泡 ═══════ */
+.asktwice-sel-bubble {
+  position: absolute;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+}
+
+.asktwice-sel-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.asktwice-sel-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.asktwice-sel-logo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.5);
+}
+
+.asktwice-sel-loading svg {
+  animation: asktwice-spin 1s linear infinite;
+}
+
+.asktwice-sel-expand {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.3s ease, padding 0.3s ease;
+  padding: 0;
+}
+
+.asktwice-sel-bubble:hover .asktwice-sel-expand {
+  max-width: 120px;
+  padding: 0 10px 0 8px;
+}
+
+.asktwice-sel-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4F46E5;
+  background: white;
+  padding: 4px 10px;
+  border-radius: 0 14px 14px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: block;
+}
+
+/* ═══════ 结果浮窗 ═══════ */
+.asktwice-result-panel {
+  position: fixed;
+  z-index: 2147483647;
+  width: 340px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.asktwice-rp-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.asktwice-rp-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 10px;
+}
+
+.asktwice-rp-score {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  min-width: 48px;
+  text-align: center;
+}
+
+.asktwice-rp-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.asktwice-rp-level {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.asktwice-rp-sub {
+  font-size: 11px;
+  color: #9CA3AF;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asktwice-rp-close {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: #9CA3AF;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.asktwice-rp-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+.asktwice-rp-analysis {
+  padding: 8px 12px;
+  margin: 4px 0 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 2px solid rgba(16, 185, 129, 0.4);
+  border-radius: 4px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  word-break: break-all;
+}
+
+.asktwice-rp-original {
+  padding: 6px 12px;
+  margin: 0 10px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.65);
+  word-break: break-all;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.asktwice-rp-orig-label {
+  display: none;
+}
+
+.asktwice-rp-summary {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #6B7280;
+  line-height: 1.6;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.asktwice-rp-claims {
+  padding: 6px 14px 10px;
+}
+
+.asktwice-rp-claim {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.asktwice-rp-claim:last-child {
+  border-bottom: none;
+}
+
+.asktwice-rp-cscore {
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  min-width: 28px;
+  text-align: center;
+  padding: 3px 5px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.asktwice-rp-cbody {
+  flex: 1;
+  min-width: 0;
+}
+
+.asktwice-rp-ctext {
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.asktwice-rp-creason {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 3px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.asktwice-rp-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.asktwice-rp-src {
+  font-size: 10px;
+  color: #4F46E5;
+  text-decoration: none;
+  background: rgba(79, 70, 229, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.asktwice-rp-src:hover {
+  background: rgba(79, 70, 229, 0.12);
+  text-decoration: underline;
+}
+
+.asktwice-rp-domain {
+  display: inline-block;
+  font-size: 10px;
+  color: #6B7280;
+  background: rgba(107, 114, 128, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-bottom: 3px;
+}
+
+.asktwice-rp-cross {
+  font-size: 11px;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.asktwice-rp-conflict {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.06);
+  color: #991B1B;
+  font-size: 12px;
+  font-weight: 500;
+  border-top: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+/* ═══════ 深色模式适配 ═══════ */
+@media (prefers-color-scheme: dark) {
+  .asktwice-result-card {
+    background: #1F2937;
+    border-color: #374151;
+    color: #F9FAFB;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .asktwice-card-header {
+    border-bottom-color: #374151;
+  }
+
+  .asktwice-card-close {
+    background: #374151;
+    color: #9CA3AF;
+  }
+
+  .asktwice-card-close:hover {
+    background: #4B5563;
+    color: #D1D5DB;
+  }
+
+  .asktwice-card-claim {
+    border-bottom-color: #374151;
+  }
+
+  .asktwice-claim-text {
+    color: #E5E7EB;
+  }
+
+  .asktwice-card-conflict {
+    background: rgba(146, 64, 14, 0.2);
+  }
+
+  .asktwice-card-footer {
+    border-top-color: #374151;
+  }
+
+  .asktwice-float-btn {
+    background: rgba(79, 70, 229, 0.15);
+  }
+
+  .asktwice-float-btn:hover {
+    background: rgba(79, 70, 229, 0.25);
+  }
+
+  /* 划词气泡深色模式 */
+  .asktwice-sel-label {
+    background: #1F2937;
+    color: #A5B4FC;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .asktwice-result-panel {
+    background: #1F2937;
+    border-color: #374151;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .asktwice-rp-header {
+    border-bottom-color: #374151;
+  }
+
+  .asktwice-rp-ctext {
+    color: #E5E7EB;
+  }
+
+  .asktwice-rp-close {
+    background: #374151;
+  }
+
+  .asktwice-rp-conflict {
+    background: rgba(153, 27, 27, 0.2);
+  }
+}
+

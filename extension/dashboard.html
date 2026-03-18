@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ask Twice — 验证历史</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      background: #F9FAFB;
+      color: #1F2937;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header img { width: 32px; height: 32px; border-radius: 8px; }
+    .header h1 { font-size: 18px; font-weight: 700; color: #111827; }
+    .header .badge {
+      font-size: 11px;
+      color: #6B7280;
+      background: #F3F4F6;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-left: auto;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9CA3AF;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    .history-card {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .history-card:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .hc-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .hc-score {
+      font-size: 24px;
+      font-weight: 800;
+      min-width: 40px;
+    }
+    .hc-info { flex: 1; }
+    .hc-level {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+    .hc-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .hc-meta {
+      font-size: 11px;
+      color: #D1D5DB;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .hc-url-link {
+      color: #4F46E5;
+      text-decoration: none;
+      font-size: 11px;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .hc-url-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .hc-claims {
+      padding: 0 16px 12px;
+    }
+    .hc-claim {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 6px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+    .hc-claim:last-child { border-bottom: none; }
+    .hc-cscore {
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      min-width: 22px;
+      text-align: center;
+      padding: 1px 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .hc-ctext { color: #374151; font-size: 13px; line-height: 1.5; }
+
+    .hc-cbody { flex: 1; min-width: 0; }
+    .hc-creason {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 2px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    .hc-sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .hc-source-link {
+      font-size: 10px;
+      color: #4F46E5;
+      text-decoration: none;
+      background: #EEF2FF;
+      padding: 1px 6px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .hc-source-link:hover {
+      background: #E0E7FF;
+      text-decoration: underline;
+    }
+
+    .hc-summary {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: #6B7280;
+      line-height: 1.6;
+      background: #FAFAFA;
+      border-top: 1px solid #F3F4F6;
+    }
+
+    .hc-conflict {
+      padding: 8px 16px;
+      background: #FEF2F2;
+      color: #991B1B;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clear-btn {
+      display: block;
+      margin: 24px auto 0;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: #9CA3AF;
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .clear-btn:hover {
+      color: #EF4444;
+      border-color: #FECACA;
+      background: #FEF2F2;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <img src="icons/icon-48.png" alt="Ask Twice">
+      <h1>验证历史</h1>
+      <span class="badge" id="countBadge">加载中...</span>
+    </div>
+  </div>
+
+  <div class="container" id="content"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

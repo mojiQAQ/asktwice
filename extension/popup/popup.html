@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ask Twice</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- 头部 -->
+    <div class="popup-header">
+      <img src="../icons/icon-48.png" alt="Ask Twice" class="popup-logo">
+      <div class="popup-title">
+        <h1>Ask Twice</h1>
+        <span class="popup-version">v0.1.0</span>
+      </div>
+    </div>
+
+    <!-- 主操作区 -->
+    <div class="popup-action">
+      <button id="verifyBtn" class="verify-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+          <path d="M8 11l2 2 4-4"/>
+        </svg>
+        验证选中文字
+      </button>
+      <p class="action-hint" id="actionHint">在网页上选中 AI 回答的文字，然后点击上方按钮</p>
+    </div>
+
+    <!-- 验证结果 -->
+    <div class="popup-result" id="resultSection" style="display:none;">
+      <div class="result-header">
+        <span class="result-score" id="resultScore">—</span>
+        <span class="result-level" id="resultLevel">评估中...</span>
+      </div>
+      <div class="result-detail" id="resultDetail"></div>
+    </div>
+
+    <!-- 今日用量 -->
+    <div class="popup-usage">
+      <div class="usage-label">今日验证</div>
+      <div class="usage-bar">
+        <div class="usage-fill" id="usageFill"></div>
+      </div>
+      <div class="usage-text" id="usageText">加载中...</div>
+    </div>
+
+    <!-- 历史记录（最近验证） -->
+    <div class="popup-history" id="historySection" style="display:none;">
+      <div class="history-title">最近验证</div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- 设置 -->
+    <div class="popup-section">
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label">自动验证</span>
+          <span class="setting-desc">AI 回答完成后自动验证</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="autoVerify">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="popup-footer">
+      <button id="openDashboard" class="dashboard-btn">📋 查看验证历史</button>
+      <div class="footer-links">
+        <a href="https://asktwice.app" target="_blank" class="footer-link">升级 Pro</a>
+        <span class="footer-sep">·</span>
+        <a href="https://asktwice.app/help" target="_blank" class="footer-link">帮助</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
