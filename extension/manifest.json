@@ -29,6 +29,7 @@
         "https://chat.openai.com/*"
       ],
       "js": [
+        "config.js",
         "shared/constants.js",
         "shared/utils.js",
         "shared/api.js",

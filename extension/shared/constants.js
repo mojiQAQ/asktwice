@@ -2,8 +2,8 @@
  * Ask Twice — 常量定义
  */
 const ASKTWICE = {
-  // API 配置
-  API_BASE_URL: 'http://localhost:8000',
+  // API 配置（从 config.js 读取，回退到默认值）
+  API_BASE_URL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.API_BASE_URL) || 'http://localhost:8001',
   
   // 评分等级
   SCORE_LEVELS: {
@@ -23,11 +23,11 @@ const ASKTWICE = {
     USAGE_RESULT:    'USAGE_RESULT',
   },
 
-  // 免费版每日限额
-  FREE_DAILY_LIMIT: 10,
+  // 免费版每日限额（从 config.js 读取）
+  FREE_DAILY_LIMIT: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.FREE_DAILY_LIMIT) || 10,
 
-  // 缓存过期时间（毫秒）
-  CACHE_TTL: 30 * 60 * 1000, // 30 分钟
+  // 缓存过期时间（从 config.js 读取）
+  CACHE_TTL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.CACHE_TTL) || 30 * 60 * 1000,
 
   // UI 相关
   UI: {

@@ -163,12 +163,29 @@ function hashTextSW(text) {
   return `h${Math.abs(hash).toString(36)}`;
 }
 
-// Service Worker 自己的常量（不能引用 Content Script 里的 ASKTWICE）
-const ASKTWICE_CONFIG = {
+// Service Worker 配置（从 config.js 动态加载，回退到默认值）
+let ASKTWICE_CONFIG = {
   API_BASE_URL: 'http://localhost:8001',
   FREE_DAILY_LIMIT: 10,
   CACHE_TTL: 30 * 60 * 1000,
 };
+
+// 启动时从 config.js 加载配置
+(async () => {
+  try {
+    const url = chrome.runtime.getURL('config.js');
+    const text = await (await fetch(url)).text();
+    // 提取 ASKTWICE_ENV 对象中的值
+    const apiMatch = text.match(/API_BASE_URL:\s*['"]([^'"]+)['"]/);
+    const limitMatch = text.match(/FREE_DAILY_LIMIT:\s*(\d+)/);
+    const cacheMatch = text.match(/CACHE_TTL:\s*(.+?),/);
+    if (apiMatch) ASKTWICE_CONFIG.API_BASE_URL = apiMatch[1];
+    if (limitMatch) ASKTWICE_CONFIG.FREE_DAILY_LIMIT = parseInt(limitMatch[1]);
+    console.log('[Ask Twice] Config loaded:', ASKTWICE_CONFIG.API_BASE_URL);
+  } catch (e) {
+    console.warn('[Ask Twice] Config load failed, using defaults:', e.message);
+  }
+})();
 
 // ═══════ 安装事件 ═══════
 
