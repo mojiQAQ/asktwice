@@ -1,6 +1,21 @@
 # Ask Twice 🔍
 
-> AI 答案可信度验证浏览器插件 — 让你每次用 AI，都能"再问一遍"确认
+<p align="center">
+  <img src="banner.png" alt="Ask Twice Banner" width="720">
+</p>
+
+<p align="center">
+  <strong>AI 答案可信度验证浏览器插件 — 让你每次用 AI，都能"再问一遍"确认</strong><br>
+  <em>AI Response Fact-Checker Chrome Extension — Verify AI answers with cross-verification</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/mojiQAQ/asktwice/stargazers"><img src="https://img.shields.io/github/stars/mojiQAQ/asktwice?style=social" alt="Stars"></a>
+  <img src="https://img.shields.io/badge/platform-Chrome-brightgreen" alt="Chrome">
+  <img src="https://img.shields.io/badge/backend-FastAPI-009688" alt="FastAPI">
+  <img src="https://img.shields.io/badge/LLM-GPT--4o--mini-blueviolet" alt="LLM">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
+</p>
 
 ## 功能
 
