@@ -17,6 +17,18 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
 </p>
 
+## 演示
+
+<p align="center">
+  <img src="docs/demo-select.png" alt="选中文字触发验证" width="380">
+  &nbsp;&nbsp;
+  <img src="docs/demo-result.png" alt="验证结果展示" width="380">
+</p>
+
+<p align="center">
+  <em>① 选中 AI 回答中的文字 → ② 点击验证 → ③ 查看综合分析和来源</em>
+</p>
+
 ## 功能
 
 - **领域感知声明验证** — 自动识别声明所属领域（医学/法律/金融/科学…），动态调整验证严谨度
