@@ -1,10 +1,6 @@
 # Ask Twice 🔍
 
 <p align="center">
-  <img src="banner.png" alt="Ask Twice Banner" width="720">
-</p>
-
-<p align="center">
   <strong>AI 答案可信度验证浏览器插件 — 让你每次用 AI，都能"再问一遍"确认</strong><br>
   <em>AI Response Fact-Checker Chrome Extension — Verify AI answers with cross-verification</em>
 </p>
