@@ -1,5 +1,5 @@
 /**
- * Ask Twice — 结果卡片组件
+ * Ask Twice — 结果卡片组件（多源分层版）
  * 
  * 在浮标按钮下方展示验证结果摘要。
  */
@@ -18,23 +18,50 @@ const ResultCard = {
       className: `${ASKTWICE.CSS_PREFIX}-result-card`,
     });
 
+    // 多源结果摘要
+    let sourceSummary = '';
+    if (result.claims && result.claims.length > 0) {
+      const allSR = [];
+      for (const c of result.claims) {
+        const claimDomain = c.domain || '';
+        for (const sr of (c.source_results || [])) {
+          allSR.push({ ...sr, _claimDomain: claimDomain });
+        }
+      }
+      if (allSR.length > 0) {
+        sourceSummary = allSR.map(sr => {
+          const icon = sr.score >= 70 ? '✅' : sr.score >= 40 ? '⚠️' : sr.result_count > 0 || sr.assessment ? '❌' : '⚪';
+          const name = sr.engine.replace('llm:', '');
+          const displayName = sr._claimDomain ? `${name}：${sr._claimDomain}` : name;
+          return `<span class="${ASKTWICE.CSS_PREFIX}-card-src">${icon} ${displayName}</span>`;
+        }).join('');
+      }
+    }
+
+    // 回退到旧 claims
+    if (!sourceSummary) {
+      sourceSummary = this._renderClaims(result.claims || []);
+    }
+
     card.innerHTML = `
       <div class="${ASKTWICE.CSS_PREFIX}-card-header">
         <div class="${ASKTWICE.CSS_PREFIX}-card-score" style="color: ${level.color}">
           <span class="${ASKTWICE.CSS_PREFIX}-card-score-num">${result.overall_score}</span>
           <span class="${ASKTWICE.CSS_PREFIX}-card-score-label">${level.label}</span>
         </div>
-        <button class="${ASKTWICE.CSS_PREFIX}-card-close" title="关闭">✕</button>
+        <button class="${ASKTWICE.CSS_PREFIX}-card-close" title="${AskTwiceUtils.i18n('close')}">✕</button>
       </div>
 
-      <div class="${ASKTWICE.CSS_PREFIX}-card-claims">
-        ${this._renderClaims(result.claims || [])}
+      ${result.judgment ? `<div class="${ASKTWICE.CSS_PREFIX}-card-judgment">${AskTwiceUtils.truncate(result.judgment, 100)}</div>` : ''}
+
+      <div class="${ASKTWICE.CSS_PREFIX}-card-sources">
+        ${sourceSummary}
       </div>
 
       ${result.conflicts && result.conflicts.has_conflict ? `
         <div class="${ASKTWICE.CSS_PREFIX}-card-conflict">
           <span class="${ASKTWICE.CSS_PREFIX}-card-conflict-icon">⚠️</span>
-          <span>检测到潜在利益冲突</span>
+          <span>${AskTwiceUtils.i18n('conflictDetected')}</span>
         </div>
       ` : ''}
 
@@ -69,16 +96,15 @@ const ResultCard = {
   },
 
   /**
-   * 渲染声明验证列表
+   * 渲染声明验证列表（兼容旧数据）
    */
   _renderClaims(claims) {
     if (claims.length === 0) {
-      return `<div class="${ASKTWICE.CSS_PREFIX}-card-empty">未提取到可验证的事实声明</div>`;
+      return `<div class="${ASKTWICE.CSS_PREFIX}-card-empty">${AskTwiceUtils.i18n('noClaimsFound')}</div>`;
     }
 
     return claims.slice(0, 5).map(claim => {
       const level = AskTwiceUtils.getScoreLevel(claim.score);
-      const sourceCount = (claim.sources || []).length;
       const icon = claim.score >= 80 ? '✅' : claim.score >= 60 ? '⚠️' : '❌';
       
       return `
@@ -87,8 +113,7 @@ const ResultCard = {
           <div class="${ASKTWICE.CSS_PREFIX}-claim-body">
             <div class="${ASKTWICE.CSS_PREFIX}-claim-text">${AskTwiceUtils.truncate(claim.text, 60)}</div>
             <div class="${ASKTWICE.CSS_PREFIX}-claim-meta">
-              <span style="color: ${level.color}">${claim.score}分</span>
-              <span>· ${sourceCount} 个来源</span>
+              <span style="color: ${level.color}">${claim.score}${AskTwiceUtils.i18n('score')}</span>
             </div>
           </div>
         </div>

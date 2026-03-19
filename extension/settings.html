@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ask Twice — Settings</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      background: #F3F4F6;
+      color: #1F2937;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .settings-container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .settings-header img { width: 32px; height: 32px; border-radius: 8px; }
+    .settings-header h1 { font-size: 18px; font-weight: 700; }
+    .settings-header .subtitle { font-size: 12px; color: #9CA3AF; margin-left: auto; }
+
+    .section {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    .field .hint {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 2px;
+    }
+    .field select,
+    .field input[type="text"],
+    .field input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      background: #FAFAFA;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .field select:focus,
+    .field input:focus {
+      border-color: #818CF8;
+      background: white;
+    }
+
+    .model-card {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .model-card.default {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+    }
+    .model-card .model-default-badge {
+      font-size: 10px;
+      color: #4F46E5;
+      background: #E0E7FF;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .model-card .mc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .model-card .mc-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn-remove {
+      font-size: 11px;
+      color: #EF4444;
+      background: none;
+      border: 1px solid #FECACA;
+      border-radius: 6px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-remove:hover {
+      background: #FEF2F2;
+      border-color: #EF4444;
+    }
+    .model-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .model-fields .field { margin-bottom: 0; }
+    .model-fields .full-width { grid-column: 1 / -1; }
+
+    .btn-add {
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+      color: #4F46E5;
+      background: #EEF2FF;
+      border: 1px dashed #C7D2FE;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-add:hover {
+      background: #E0E7FF;
+      border-color: #818CF8;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-save:hover {
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-save:active { transform: translateY(0); }
+    .btn-save.saved {
+      background: linear-gradient(135deg, #10B981, #059669);
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <div class="settings-header">
+      <img src="icons/icon-48.png" alt="Ask Twice">
+      <h1 data-i18n="settingsTitle">⚙️ Settings</h1>
+      <span class="subtitle">v0.1.0</span>
+    </div>
+
+    <!-- 语言设置 -->
+    <div class="section">
+      <div class="section-title" data-i18n="languageLabel">Display Language</div>
+      <div class="field">
+        <select id="langSelect">
+          <option value="auto" data-i18n="langAuto">Auto (follow browser)</option>
+          <option value="zh_CN" data-i18n="langZh">中文</option>
+          <option value="en" data-i18n="langEn">English</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Brave API Key -->
+    <div class="section">
+      <div class="section-title">Brave Search</div>
+      <div class="field">
+        <label data-i18n="braveApiKey">Brave Search API Key</label>
+        <input type="password" id="braveKey" placeholder="BSA...">
+        <div class="hint" data-i18n="braveApiKeyHint">Optional, leave empty to use default service</div>
+      </div>
+    </div>
+
+    <!-- LLM 模型列表 -->
+    <div class="section">
+      <div class="section-title" data-i18n="llmModels">LLM Verification Models</div>
+
+      <!-- 默认模型（不可删除） -->
+      <div class="model-card default">
+        <div class="mc-header">
+          <span class="mc-name">gpt-4o-mini</span>
+          <span class="model-default-badge" data-i18n="llmDefault">Default</span>
+        </div>
+        <div class="hint">https://api.modelverse.cn/v1</div>
+      </div>
+
+      <!-- 用户添加的模型列表 -->
+      <div id="customModels"></div>
+
+      <button class="btn-add" id="addModelBtn" data-i18n="addModel">+ Add Model</button>
+    </div>
+
+    <!-- 保存 -->
+    <button class="btn-save" id="saveBtn" data-i18n="saveSettings">Save Settings</button>
+  </div>
+
+  <script src="shared/i18n-data.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

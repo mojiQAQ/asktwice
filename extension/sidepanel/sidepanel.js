@@ -4,20 +4,34 @@
  * 监听来自 Service Worker 的验证结果并展示。
  */
 
+// i18n 快捷方法（SidePanel 独立环境）
+const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
+
 // 分数等级配置（SidePanel 独立环境，需要自己定义）
 const SCORE_LEVELS = {
-  HIGH:              { min: 80, label: '高可信', color: '#10B981' },
-  NEEDS_VERIFICATION:{ min: 60, label: '待验证', color: '#F59E0B' },
-  LOW:               { min: 40, label: '低可信', color: '#F97316' },
-  UNRELIABLE:        { min: 0,  label: '不可信', color: '#EF4444' },
+  HIGH:              { min: 80, labelKey: 'highCredibility', color: '#10B981' },
+  NEEDS_VERIFICATION:{ min: 60, labelKey: 'needsVerification', color: '#F59E0B' },
+  LOW:               { min: 40, labelKey: 'lowCredibility', color: '#F97316' },
+  UNRELIABLE:        { min: 0,  labelKey: 'unreliable', color: '#EF4444' },
 };
 
 function getScoreLevel(score) {
-  if (score >= 80) return SCORE_LEVELS.HIGH;
-  if (score >= 60) return SCORE_LEVELS.NEEDS_VERIFICATION;
-  if (score >= 40) return SCORE_LEVELS.LOW;
-  return SCORE_LEVELS.UNRELIABLE;
+  let level;
+  if (score >= 80) level = SCORE_LEVELS.HIGH;
+  else if (score >= 60) level = SCORE_LEVELS.NEEDS_VERIFICATION;
+  else if (score >= 40) level = SCORE_LEVELS.LOW;
+  else level = SCORE_LEVELS.UNRELIABLE;
+  return { ...level, label: t(level.labelKey) };
 }
+
+// i18n：填充 data-i18n 属性的元素
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const msg = t(key);
+    if (msg) el.textContent = msg;
+  });
+});
 
 /**
  * 渲染验证结果
@@ -54,14 +68,14 @@ function renderResult(result) {
           <span class="claim-icon">${icon}</span>
           <div class="claim-body">
             <div class="claim-text">${claim.text}</div>
-            <div class="claim-score" style="color:${cl.color}">${claim.score} 分</div>
-            ${sources ? `<div class="claim-sources">来源: ${sources}</div>` : ''}
+            <div class="claim-score" style="color:${cl.color}">${claim.score} ${t('score')}</div>
+            ${sources ? `<div class="claim-sources">${t('sourceLabel')}: ${sources}</div>` : ''}
           </div>
         </div>
       `;
     }).join('');
   } else {
-    claimsList.innerHTML = '<div style="color:#9CA3AF;text-align:center;padding:16px">未提取到可验证的声明</div>';
+    claimsList.innerHTML = `<div style="color:#9CA3AF;text-align:center;padding:16px">${t('noClaimsFound')}</div>`;
   }
 
   // 利益冲突
@@ -70,9 +84,9 @@ function renderResult(result) {
     conflictSection.style.display = 'block';
     document.getElementById('conflictDetails').innerHTML = `
       <div class="conflict-alert">
-        <p>${result.conflicts.details || '检测到潜在利益冲突或商业推荐倾向'}</p>
+        <p>${result.conflicts.details || t('conflictDefault')}</p>
         ${result.conflicts.commercial_links && result.conflicts.commercial_links.length > 0
-          ? `<p style="margin-top:6px">商业链接: ${result.conflicts.commercial_links.join(', ')}</p>` : ''}
+          ? `<p style="margin-top:6px">${t('commercialLinks')}: ${result.conflicts.commercial_links.join(', ')}</p>` : ''}
       </div>
     `;
   } else {
@@ -82,7 +96,11 @@ function renderResult(result) {
   // 元信息
   if (result.meta) {
     document.getElementById('metaInfo').textContent =
-      `耗时 ${(result.meta.latency_ms / 1000).toFixed(1)}s · ${result.meta.llm_calls} 次 LLM · ${result.meta.search_calls} 次搜索`;
+      t('metaLatency', [
+        (result.meta.latency_ms / 1000).toFixed(1),
+        String(result.meta.llm_calls),
+        String(result.meta.search_calls),
+      ]);
   }
 }
 

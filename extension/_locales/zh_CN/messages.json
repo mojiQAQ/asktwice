@@ -1,0 +1,242 @@
+{
+  "extName": {
+    "message": "Ask Twice — AI 回答可信度验证"
+  },
+  "extDescription": {
+    "message": "验证 AI 回答的可信度 — 让你每次用 AI，都能再问一遍确认"
+  },
+  "dailyLimitReached": {
+    "message": "今日免费次数已用完，升级 Pro 享受无限验证"
+  },
+  "verifySelectedText": {
+    "message": "验证选中文字"
+  },
+  "verifying": {
+    "message": "验证中..."
+  },
+  "verifyDone": {
+    "message": "验证完成 ✓"
+  },
+  "selectTextHint": {
+    "message": "在网页上选中 AI 回答的文字，然后点击上方按钮"
+  },
+  "selectMinChars": {
+    "message": "请先在网页上选中要验证的文字（至少 5 个字）"
+  },
+  "cannotGetPage": {
+    "message": "无法获取当前页面"
+  },
+  "analyzing": {
+    "message": "正在分析文本可信度..."
+  },
+  "verifyFailed": {
+    "message": "验证失败"
+  },
+  "errorPrefix": {
+    "message": "出错"
+  },
+  "todayVerify": {
+    "message": "今日验证"
+  },
+  "recentVerify": {
+    "message": "最近验证"
+  },
+  "autoVerify": {
+    "message": "自动验证"
+  },
+  "autoVerifyDesc": {
+    "message": "AI 回答完成后自动验证"
+  },
+  "viewHistory": {
+    "message": "📋 查看验证历史"
+  },
+  "upgradePro": {
+    "message": "升级 Pro"
+  },
+  "help": {
+    "message": "帮助"
+  },
+  "highCredibility": {
+    "message": "高可信"
+  },
+  "needsVerification": {
+    "message": "待验证"
+  },
+  "lowCredibility": {
+    "message": "低可信"
+  },
+  "unreliable": {
+    "message": "不可信"
+  },
+  "noClaimsFound": {
+    "message": "未提取到可验证的事实声明"
+  },
+  "conflictDetected": {
+    "message": "检测到潜在利益冲突"
+  },
+  "conflictBias": {
+    "message": "检测到利益冲突（偏差: $SCORE$）",
+    "placeholders": {
+      "SCORE": { "content": "$1" }
+    }
+  },
+  "conflictBiasPopup": {
+    "message": "⚠️ 检测到利益冲突倾向（偏差评分: $SCORE$）",
+    "placeholders": {
+      "SCORE": { "content": "$1" }
+    }
+  },
+  "credibility": {
+    "message": "可信度"
+  },
+  "verifyCredibility": {
+    "message": "验证可信度"
+  },
+  "verifyAnswer": {
+    "message": "Ask Twice — 验证此回答的可信度"
+  },
+  "failed": {
+    "message": "失败"
+  },
+  "score": {
+    "message": "分"
+  },
+  "nSources": {
+    "message": "$COUNT$ 个来源",
+    "placeholders": {
+      "COUNT": { "content": "$1" }
+    }
+  },
+  "sourceLabel": {
+    "message": "来源"
+  },
+  "crossVerify": {
+    "message": "交叉验证"
+  },
+  "rigour": {
+    "message": "严谨度"
+  },
+  "close": {
+    "message": "关闭"
+  },
+  "clickVerifyBtn": {
+    "message": "点击 AI 回答旁的验证按钮"
+  },
+  "resultShowHere": {
+    "message": "验证结果将在此处显示"
+  },
+  "claimVerify": {
+    "message": "📋 声明验证"
+  },
+  "conflictTitle": {
+    "message": "⚠️ 利益冲突"
+  },
+  "conflictDefault": {
+    "message": "检测到潜在利益冲突或商业推荐倾向"
+  },
+  "commercialLinks": {
+    "message": "商业链接"
+  },
+  "metaLatency": {
+    "message": "耗时 $TIME$s · $LLM$ 次 LLM · $SEARCH$ 次搜索",
+    "placeholders": {
+      "TIME": { "content": "$1" },
+      "LLM": { "content": "$2" },
+      "SEARCH": { "content": "$3" }
+    }
+  },
+  "jumpToSource": {
+    "message": "跳转原文"
+  },
+  "loading": {
+    "message": "加载中..."
+  },
+  "verifyResult": {
+    "message": "Ask Twice — 验证结果"
+  },
+  "verifyHistory": {
+    "message": "验证历史"
+  },
+  "nRecords": {
+    "message": "$COUNT$ 条记录",
+    "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "noRecordsYet": {
+    "message": "还没有验证记录"
+  },
+  "noRecordsHint": {
+    "message": "在 AI 页面选中文字后点击 Ask Twice 图标即可验证"
+  },
+  "today": {
+    "message": "今天"
+  },
+  "goToSource": {
+    "message": "跳转原文页面"
+  },
+  "originalPage": {
+    "message": "原文"
+  },
+  "clearHistory": {
+    "message": "清空历史记录"
+  },
+  "confirmClearHistory": {
+    "message": "确定要清空所有验证历史记录吗？"
+  },
+  "requestFailed": {
+    "message": "验证请求失败"
+  },
+  "usageFetchFailed": {
+    "message": "获取用量失败"
+  },
+  "settingsTitle": {
+    "message": "⚙️ 设置"
+  },
+  "languageLabel": {
+    "message": "显示语言"
+  },
+  "langAuto": {
+    "message": "自动（跟随浏览器）"
+  },
+  "langZh": {
+    "message": "中文"
+  },
+  "langEn": {
+    "message": "English"
+  },
+  "braveApiKey": {
+    "message": "Brave Search API Key"
+  },
+  "braveApiKeyHint": {
+    "message": "可选，留空使用默认服务"
+  },
+  "llmModels": {
+    "message": "LLM 验证模型"
+  },
+  "llmDefault": {
+    "message": "默认"
+  },
+  "addModel": {
+    "message": "+ 添加模型"
+  },
+  "removeModel": {
+    "message": "删除"
+  },
+  "baseUrl": {
+    "message": "Base URL"
+  },
+  "apiKey": {
+    "message": "API Key"
+  },
+  "modelName": {
+    "message": "模型名称"
+  },
+  "saveSettings": {
+    "message": "保存设置"
+  },
+  "saved": {
+    "message": "已保存 ✓"
+  },
+  "settings": {
+    "message": "⚙️ 设置"
+  }
+}

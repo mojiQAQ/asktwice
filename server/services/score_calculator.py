@@ -35,6 +35,7 @@ def calculate_score(
         rigour = c.get("rigour", 5)
         evidence_type = c.get("evidence_type", "consensus")
         domain = c.get("domain", "通用")
+        has_sources = bool(c.get("sources"))
 
         # 交叉验证分数
         cross = cross_results[i] if i < len(cross_results) else {}
@@ -49,8 +50,19 @@ def calculate_score(
 
         # 根据 evidence_type 调整搜索/交叉的权重
         weights = _get_blend_weights(evidence_type)
+
+        # 当搜索无结果时，大幅提升交叉验证权重
+        # （避免搜索引擎覆盖不足导致误判）
+        if not has_sources:
+            weights = {"search": 0.15, "cross": 0.85}
+
         blended = source_score * weights["search"] + cross_score * weights["cross"]
         blended = max(0, min(100, int(blended)))
+
+        # 交叉验证保底：当交叉验证明确通过且置信度较高时，
+        # 最终分数不应低于 55（"待验证"而非"不可信"）
+        if cross_agrees and cross_confidence >= 60 and blended < 55:
+            blended = 55
 
         claim_final_scores.append({
             "score": blended,

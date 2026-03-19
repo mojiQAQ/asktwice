@@ -11,6 +11,19 @@
   if (window.__askTwiceInitialized) return;
   window.__askTwiceInitialized = true;
 
+  // 缓存版本号 —— 代码更新后改这个数字即可强制清旧缓存
+  const CACHE_VERSION = 2;
+  try {
+    chrome.storage.local.get('cacheVersion', (data) => {
+      if ((data.cacheVersion || 0) < CACHE_VERSION) {
+        chrome.storage.local.remove('verifyCache', () => {
+          chrome.storage.local.set({ cacheVersion: CACHE_VERSION });
+          console.log('[Ask Twice] 旧缓存已清除 (v' + CACHE_VERSION + ')');
+        });
+      }
+    });
+  } catch (e) { /* ignore */ }
+
   console.log('[Ask Twice] Content Script 加载完成');
 
   // 检测当前平台

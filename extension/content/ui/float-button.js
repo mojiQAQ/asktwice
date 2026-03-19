@@ -13,7 +13,7 @@ const FloatButton = {
 
     const btn = AskTwiceUtils.createElement('button', {
       className: `${ASKTWICE.CSS_PREFIX}-float-btn`,
-      title: 'Ask Twice — 验证此回答的可信度',
+      title: AskTwiceUtils.i18n('verifyAnswer'),
       'data-answer-id': answerId,
     }, [
       // 图标：双勾 SVG
@@ -62,7 +62,7 @@ const FloatButton = {
         this.setError(btn, response.payload.error);
       }
     } catch (err) {
-      console.error('[Ask Twice] 验证失败:', err);
+      console.error('[Ask Twice] Verify failed:', err);
       this.setError(btn, err.message);
     }
   },
@@ -83,7 +83,7 @@ const FloatButton = {
     const level = AskTwiceUtils.getScoreLevel(result.overall_score);
     btn.style.setProperty('--asktwice-color', level.color);
     btn.classList.add(`${ASKTWICE.CSS_PREFIX}-has-result`);
-    btn.title = `可信度: ${result.overall_score} — ${level.label}`;
+    btn.title = `${AskTwiceUtils.i18n('credibility')}: ${result.overall_score} — ${level.label}`;
     
     // 添加分数显示
     let scoreEl = btn.querySelector(`.${ASKTWICE.CSS_PREFIX}-score`);
@@ -102,7 +102,7 @@ const FloatButton = {
   setError(btn, message) {
     this.setLoading(btn, false);
     btn.classList.add(`${ASKTWICE.CSS_PREFIX}-error`);
-    btn.title = `验证失败: ${message}`;
+    btn.title = `${AskTwiceUtils.i18n('verifyFailed')}: ${message}`;
   },
 
   /**

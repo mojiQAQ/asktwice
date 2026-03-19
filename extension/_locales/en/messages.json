@@ -1,0 +1,242 @@
+{
+  "extName": {
+    "message": "Ask Twice — AI Answer Verifier"
+  },
+  "extDescription": {
+    "message": "Verify AI answer credibility — double-check every AI response"
+  },
+  "dailyLimitReached": {
+    "message": "Daily free limit reached. Upgrade to Pro for unlimited verifications."
+  },
+  "verifySelectedText": {
+    "message": "Verify Selected Text"
+  },
+  "verifying": {
+    "message": "Verifying..."
+  },
+  "verifyDone": {
+    "message": "Verification complete ✓"
+  },
+  "selectTextHint": {
+    "message": "Select AI answer text on the page, then click the button above"
+  },
+  "selectMinChars": {
+    "message": "Please select text to verify (at least 5 characters)"
+  },
+  "cannotGetPage": {
+    "message": "Cannot access current page"
+  },
+  "analyzing": {
+    "message": "Analyzing text credibility..."
+  },
+  "verifyFailed": {
+    "message": "Verification failed"
+  },
+  "errorPrefix": {
+    "message": "Error"
+  },
+  "todayVerify": {
+    "message": "Today's verifications"
+  },
+  "recentVerify": {
+    "message": "Recent"
+  },
+  "autoVerify": {
+    "message": "Auto-verify"
+  },
+  "autoVerifyDesc": {
+    "message": "Auto-verify after AI responds"
+  },
+  "viewHistory": {
+    "message": "📋 View History"
+  },
+  "upgradePro": {
+    "message": "Upgrade Pro"
+  },
+  "help": {
+    "message": "Help"
+  },
+  "highCredibility": {
+    "message": "Highly Credible"
+  },
+  "needsVerification": {
+    "message": "Needs Verification"
+  },
+  "lowCredibility": {
+    "message": "Low Credibility"
+  },
+  "unreliable": {
+    "message": "Unreliable"
+  },
+  "noClaimsFound": {
+    "message": "No verifiable claims found"
+  },
+  "conflictDetected": {
+    "message": "Potential conflict of interest detected"
+  },
+  "conflictBias": {
+    "message": "Conflict of interest detected (bias: $SCORE$)",
+    "placeholders": {
+      "SCORE": { "content": "$1" }
+    }
+  },
+  "conflictBiasPopup": {
+    "message": "⚠️ Conflict of interest detected (bias score: $SCORE$)",
+    "placeholders": {
+      "SCORE": { "content": "$1" }
+    }
+  },
+  "credibility": {
+    "message": "Credibility"
+  },
+  "verifyCredibility": {
+    "message": "Verify Credibility"
+  },
+  "verifyAnswer": {
+    "message": "Ask Twice — Verify this answer's credibility"
+  },
+  "failed": {
+    "message": "Failed"
+  },
+  "score": {
+    "message": "pts"
+  },
+  "nSources": {
+    "message": "$COUNT$ sources",
+    "placeholders": {
+      "COUNT": { "content": "$1" }
+    }
+  },
+  "sourceLabel": {
+    "message": "Sources"
+  },
+  "crossVerify": {
+    "message": "Cross-verification"
+  },
+  "rigour": {
+    "message": "Rigour"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "clickVerifyBtn": {
+    "message": "Click the verify button next to an AI answer"
+  },
+  "resultShowHere": {
+    "message": "Results will appear here"
+  },
+  "claimVerify": {
+    "message": "📋 Claim Verification"
+  },
+  "conflictTitle": {
+    "message": "⚠️ Conflicts"
+  },
+  "conflictDefault": {
+    "message": "Potential conflict of interest or commercial bias detected"
+  },
+  "commercialLinks": {
+    "message": "Commercial links"
+  },
+  "metaLatency": {
+    "message": "Took $TIME$s · $LLM$ LLM calls · $SEARCH$ searches",
+    "placeholders": {
+      "TIME": { "content": "$1" },
+      "LLM": { "content": "$2" },
+      "SEARCH": { "content": "$3" }
+    }
+  },
+  "jumpToSource": {
+    "message": "Go to source"
+  },
+  "loading": {
+    "message": "Loading..."
+  },
+  "verifyResult": {
+    "message": "Ask Twice — Verification Results"
+  },
+  "verifyHistory": {
+    "message": "Verification History"
+  },
+  "nRecords": {
+    "message": "$COUNT$ records",
+    "placeholders": { "COUNT": { "content": "$1" } }
+  },
+  "noRecordsYet": {
+    "message": "No verification records yet"
+  },
+  "noRecordsHint": {
+    "message": "Select text on an AI page and click the Ask Twice icon to verify"
+  },
+  "today": {
+    "message": "Today"
+  },
+  "goToSource": {
+    "message": "Go to source page"
+  },
+  "originalPage": {
+    "message": "Source"
+  },
+  "clearHistory": {
+    "message": "Clear History"
+  },
+  "confirmClearHistory": {
+    "message": "Are you sure you want to clear all verification history?"
+  },
+  "requestFailed": {
+    "message": "Verification request failed"
+  },
+  "usageFetchFailed": {
+    "message": "Failed to fetch usage"
+  },
+  "settingsTitle": {
+    "message": "⚙️ Settings"
+  },
+  "languageLabel": {
+    "message": "Display Language"
+  },
+  "langAuto": {
+    "message": "Auto (follow browser)"
+  },
+  "langZh": {
+    "message": "中文"
+  },
+  "langEn": {
+    "message": "English"
+  },
+  "braveApiKey": {
+    "message": "Brave Search API Key"
+  },
+  "braveApiKeyHint": {
+    "message": "Optional, leave empty to use default service"
+  },
+  "llmModels": {
+    "message": "LLM Verification Models"
+  },
+  "llmDefault": {
+    "message": "Default"
+  },
+  "addModel": {
+    "message": "+ Add Model"
+  },
+  "removeModel": {
+    "message": "Remove"
+  },
+  "baseUrl": {
+    "message": "Base URL"
+  },
+  "apiKey": {
+    "message": "API Key"
+  },
+  "modelName": {
+    "message": "Model Name"
+  },
+  "saveSettings": {
+    "message": "Save Settings"
+  },
+  "saved": {
+    "message": "Saved ✓"
+  },
+  "settings": {
+    "message": "⚙️ Settings"
+  }
+}

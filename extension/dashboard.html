@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ask Twice — 验证历史</title>
+  <title>Ask Twice</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -184,6 +184,50 @@
       gap: 6px;
     }
 
+    /* 综合评定（新） */
+    .hc-judgment {
+      padding: 10px 16px;
+      background: #ECFDF5;
+      border-top: 1px solid #D1FAE5;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #065F46;
+    }
+
+    /* 多源结果列表 */
+    .hc-sources-list {
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hc-source-card {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 8px 10px;
+      transition: border-color 0.15s;
+    }
+    .hc-source-card:hover { border-color: #C7D2FE; }
+    .hc-src-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+    .hc-src-name { font-size: 12px; font-weight: 600; color: #1F2937; flex: 1; }
+    .hc-src-type {
+      font-size: 9px; padding: 1px 5px; border-radius: 3px;
+      background: #EEF2FF; color: #4F46E5; font-weight: 500; text-transform: uppercase;
+    }
+    .hc-src-score {
+      font-size: 11px; font-weight: 700; color: #374151;
+      background: #F3F4F6; padding: 1px 6px; border-radius: 4px;
+    }
+    .hc-src-count { font-size: 11px; color: #9CA3AF; }
+    .hc-src-reason { font-size: 11px; color: #6B7280; line-height: 1.5; margin-top: 2px; }
+    .hc-src-detail { font-size: 11.5px; }
+
     .clear-btn {
       display: block;
       margin: 24px auto 0;
@@ -207,8 +251,8 @@
   <div class="header">
     <div class="header-inner">
       <img src="icons/icon-48.png" alt="Ask Twice">
-      <h1>验证历史</h1>
-      <span class="badge" id="countBadge">加载中...</span>
+      <h1 data-i18n="verifyHistory"></h1>
+      <span class="badge" id="countBadge" data-i18n="loading"></span>
     </div>
   </div>
 

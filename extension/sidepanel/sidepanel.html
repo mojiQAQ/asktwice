@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ask Twice — 验证结果</title>
+  <title data-i18n="verifyResult">Ask Twice — 验证结果</title>
   <link rel="stylesheet" href="sidepanel.css">
 </head>
 <body>
@@ -17,8 +17,8 @@
     <!-- 空状态 -->
     <div class="panel-empty" id="emptyState">
       <div class="empty-icon">🔍</div>
-      <p class="empty-text">点击 AI 回答旁的验证按钮</p>
-      <p class="empty-sub">验证结果将在此处显示</p>
+      <p class="empty-text" data-i18n="clickVerifyBtn"></p>
+      <p class="empty-sub" data-i18n="resultShowHere"></p>
     </div>
 
     <!-- 结果区域（默认隐藏） -->
@@ -34,13 +34,13 @@
 
       <!-- 声明列表 -->
       <div class="result-section">
-        <h2 class="section-title">📋 声明验证</h2>
+        <h2 class="section-title" data-i18n="claimVerify"></h2>
         <div id="claimsList"></div>
       </div>
 
       <!-- 利益冲突 -->
       <div class="result-section" id="conflictSection" style="display: none;">
-        <h2 class="section-title">⚠️ 利益冲突</h2>
+        <h2 class="section-title" data-i18n="conflictTitle"></h2>
         <div id="conflictDetails"></div>
       </div>
 

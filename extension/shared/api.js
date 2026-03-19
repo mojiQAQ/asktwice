@@ -6,7 +6,7 @@ const AskTwiceAPI = {
    * 发送验证请求到后端
    */
   async verify(text, platform, options = {}) {
-    const { language = 'zh', depth = 'standard' } = options;
+    const { language = (chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en'), depth = 'standard' } = options;
     
     const body = {
       text,
@@ -27,9 +27,9 @@ const AskTwiceAPI = {
 
     if (!response.ok) {
       if (response.status === 429) {
-        throw new Error('今日免费次数已用完，升级 Pro 享受无限验证');
+        throw new Error(chrome.i18n.getMessage('dailyLimitReached') || 'Daily free limit reached');
       }
-      throw new Error(`验证请求失败: ${response.status}`);
+      throw new Error(`${chrome.i18n.getMessage('requestFailed') || 'Request failed'}: ${response.status}`);
     }
 
     return response.json();
@@ -42,7 +42,7 @@ const AskTwiceAPI = {
     const response = await fetch(`${ASKTWICE.API_BASE_URL}/api/usage`, {
       headers: this._getAuthHeaders(),
     });
-    if (!response.ok) throw new Error('获取用量失败');
+    if (!response.ok) throw new Error(chrome.i18n.getMessage('usageFetchFailed') || 'Failed to fetch usage');
     return response.json();
   },
 

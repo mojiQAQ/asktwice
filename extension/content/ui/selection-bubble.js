@@ -14,7 +14,7 @@ const SelectionBubble = {
   init() {
     document.addEventListener('mouseup', (e) => this.onMouseUp(e));
     document.addEventListener('mousedown', (e) => this.onMouseDown(e));
-    console.log('[Ask Twice] 划词验证已启用');
+    console.log('[Ask Twice] Selection verify enabled');
   },
 
   onMouseDown(e) {
@@ -106,7 +106,7 @@ const SelectionBubble = {
     const bubble = document.createElement('div');
     bubble.className = 'asktwice-sel-bubble';
     bubble.innerHTML = `
-      <div class="asktwice-sel-logo" title="Ask Twice — 验证选中文字">
+      <div class="asktwice-sel-logo" title="${AskTwiceUtils.i18n('verifyAnswer')}">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="7"/>
           <path d="M21 21l-4.35-4.35"/>
@@ -114,7 +114,7 @@ const SelectionBubble = {
         </svg>
       </div>
       <div class="asktwice-sel-expand">
-        <span class="asktwice-sel-label">验证可信度</span>
+        <span class="asktwice-sel-label">${AskTwiceUtils.i18n('verifyCredibility')}</span>
       </div>
     `;
 
@@ -155,7 +155,7 @@ const SelectionBubble = {
     const expand = bubble.querySelector('.asktwice-sel-expand');
     if (logo) logo.classList.add('asktwice-sel-loading');
     if (expand) {
-      expand.querySelector('.asktwice-sel-label').textContent = '分析中...';
+      expand.querySelector('.asktwice-sel-label').textContent = AskTwiceUtils.i18n('verifying');
     }
 
     try {
@@ -180,7 +180,7 @@ const SelectionBubble = {
         this.showError(bubble, response.payload.error);
       }
     } catch (err) {
-      console.error('[Ask Twice] 验证失败:', err);
+      console.error('[Ask Twice] Verify failed:', err);
       this.showError(bubble, err.message);
     }
   },
@@ -190,50 +190,107 @@ const SelectionBubble = {
 
     const score = result.overall_score || 0;
     const levels = [
-      { min: 80, label: '高可信', color: '#10B981', bg: '#ECFDF5', emoji: '🟢' },
-      { min: 60, label: '待验证', color: '#F59E0B', bg: '#FFFBEB', emoji: '🟡' },
-      { min: 40, label: '低可信', color: '#F97316', bg: '#FFF7ED', emoji: '🟠' },
-      { min: 0,  label: '不可信', color: '#EF4444', bg: '#FEF2F2', emoji: '🔴' },
+      { min: 80, labelKey: 'highCredibility', color: '#10B981', bg: '#ECFDF5', emoji: '🟢' },
+      { min: 60, labelKey: 'needsVerification', color: '#F59E0B', bg: '#FFFBEB', emoji: '🟡' },
+      { min: 40, labelKey: 'lowCredibility', color: '#F97316', bg: '#FFF7ED', emoji: '🟠' },
+      { min: 0,  labelKey: 'unreliable', color: '#EF4444', bg: '#FEF2F2', emoji: '🔴' },
     ];
     const lv = levels.find(l => score >= l.min) || levels[3];
+    const lvLabel = AskTwiceUtils.i18n(lv.labelKey);
 
     const panel = document.createElement('div');
     panel.className = 'asktwice-result-panel';
 
-    // 声明列表 HTML
-    let claimsHtml = '';
+    // ── 红框：综合评定 ──
+    const judgmentText = result.judgment || result.summary || '';
+    const judgmentHtml = judgmentText
+      ? `<div class="asktwice-rp-judgment">${this._linkify(judgmentText)}</div>`
+      : '';
+
+    // ── 蓝框：多源结果列表 ──
+    let sourceCardsHtml = '';
     if (result.claims && result.claims.length > 0) {
-      claimsHtml = result.claims.slice(0, 5).map(c => {
-        const cLv = levels.find(l => c.score >= l.min) || levels[3];
-        const reasonHtml = c.reason ? `<div class="asktwice-rp-creason">${this._linkify(c.reason)}</div>` : '';
-        let sourcesHtml = '';
-        if (c.sources && c.sources.length > 0) {
-          sourcesHtml = '<div class="asktwice-rp-sources">' +
-            c.sources.slice(0, 3).map(s => {
-              const label = s.title || s.url || '来源';
-              const shortLabel = label.length > 40 ? label.substring(0, 37) + '...' : label;
-              return `<a class="asktwice-rp-src" href="${this._esc(s.url)}" target="_blank" rel="noopener" title="${this._esc(label)}">${this._esc(shortLabel)}</a>`;
-            }).join('') + '</div>';
+      // 收集所有声明的 source_results，每个 claim-source 组合独立展示
+      const allSourceResults = [];
+      for (const c of result.claims) {
+        const claimDomain = c.domain || '';
+        if (c.source_results && c.source_results.length > 0) {
+          for (const sr of c.source_results) {
+            allSourceResults.push({ ...sr, _claimDomain: claimDomain });
+          }
         }
-        // 领域标签
-        const domainHtml = c.domain ? `<span class="asktwice-rp-domain">${this._esc(c.domain)} · 严谨度 ${c.rigour || 5}/10</span>` : '';
-        // 交叉验证
-        let crossHtml = '';
-        if (c.cross_check && c.cross_check.reasoning) {
-          const icon = c.cross_check.agrees ? '✓' : '✗';
-          const color = c.cross_check.agrees ? '#10B981' : '#EF4444';
-          crossHtml = `<div class="asktwice-rp-cross" style="color:${color}"><span>${icon} 交叉验证</span>：${this._esc(c.cross_check.reasoning)}</div>`;
-        }
-        return `
-          <div class="asktwice-rp-claim">
-            <span class="asktwice-rp-cscore" style="background:${cLv.color}">${c.score}</span>
-            <div class="asktwice-rp-cbody">
-              ${domainHtml}
-              <span class="asktwice-rp-ctext">${this._esc(c.text)}</span>
-              ${reasonHtml}
-              ${crossHtml}
-              ${sourcesHtml}
+      }
+
+      if (allSourceResults.length > 0) {
+        sourceCardsHtml = allSourceResults.map(sr => {
+          const isLLM = sr.engine_type === 'llm';
+          const icon = sr.score >= 70 ? '🟢' : sr.score >= 40 ? '🟡' : sr.result_count > 0 || sr.assessment ? '🔴' : '⚪';
+          const engineName = sr.engine.replace('llm:', '');
+          // 组合显示：源名称：问题分类
+          const displayName = sr._claimDomain
+            ? `${engineName}：${sr._claimDomain}`
+            : engineName;
+
+          let detailHtml = '';
+          if (isLLM) {
+            const assessIcon = sr.assessment === 'correct' ? '✓' : sr.assessment === 'incorrect' ? '✗' : '?';
+            const assessColor = sr.assessment === 'correct' ? '#10B981' : sr.assessment === 'incorrect' ? '#EF4444' : '#9CA3AF';
+            detailHtml = `
+              <div class="asktwice-rp-src-assess" style="color:${assessColor}">
+                <span>${assessIcon} ${sr.assessment || 'uncertain'}</span>
+                <span style="color:#9CA3AF;margin-left:4px">(${sr.confidence}%)</span>
+              </div>
+              ${sr.reasoning ? `<div class="asktwice-rp-src-reason">${this._esc(sr.reasoning)}</div>` : ''}
+            `;
+          } else {
+            detailHtml = `<div class="asktwice-rp-src-count">${sr.result_count} ${AskTwiceUtils.i18n('nSources', [String(sr.result_count)])}</div>`;
+            if (sr.findings && sr.findings.length > 0) {
+              detailHtml += '<div class="asktwice-rp-src-links">' +
+                sr.findings.slice(0, 3).map(f => {
+                  const label = f.title || f.domain || AskTwiceUtils.i18n('sourceLabel');
+                  const short = label.length > 35 ? label.substring(0, 32) + '...' : label;
+                  return f.url
+                    ? `<a class="asktwice-rp-src-link" href="${this._esc(f.url)}" target="_blank" rel="noopener" title="${this._esc(label)}">🔗 ${this._esc(short)}</a>`
+                    : `<span class="asktwice-rp-src-link">${this._esc(short)}</span>`;
+                }).join('') + '</div>';
+            }
+            if (!sr.findings?.length && sr.reasoning) {
+              detailHtml += `<div class="asktwice-rp-src-reason">${this._esc(sr.reasoning)}</div>`;
+            }
+          }
+
+          return `
+            <div class="asktwice-rp-source-card">
+              <div class="asktwice-rp-src-header">
+                <span class="asktwice-rp-src-icon">${icon}</span>
+                <span class="asktwice-rp-src-name">${this._esc(displayName)}</span>
+                <span class="asktwice-rp-src-type">${isLLM ? 'LLM' : 'Search'}</span>
+                ${sr.score > 0 ? `<span class="asktwice-rp-src-score">${sr.score}</span>` : ''}
+              </div>
+              ${detailHtml}
             </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // 没有分源结果时，回退到旧的 claims 展示
+    if (!sourceCardsHtml && result.claims && result.claims.length > 0) {
+      sourceCardsHtml = result.claims.slice(0, 5).map(c => {
+        const cLv = levels.find(l => c.score >= l.min) || levels[3];
+        // 从 source_results 提取源名称
+        const sourceNames = (c.source_results || []).map(sr => sr.engine.replace('llm:', '')).filter(Boolean);
+        const domainText = c.domain || c.text.substring(0, 30);
+        const displayName = sourceNames.length > 0
+          ? `${sourceNames.join('、')}：${domainText}`
+          : domainText;
+        return `
+          <div class="asktwice-rp-source-card">
+            <div class="asktwice-rp-src-header">
+              <span class="asktwice-rp-src-score" style="background:${cLv.color}">${c.score}</span>
+              <span class="asktwice-rp-src-name">${this._esc(displayName)}</span>
+            </div>
+            ${c.reason ? `<div class="asktwice-rp-src-reason">${this._linkify(c.reason)}</div>` : ''}
           </div>
         `;
       }).join('');
@@ -244,29 +301,27 @@ const SelectionBubble = {
     if (result.conflicts && result.conflicts.has_conflict) {
       conflictHtml = `
         <div class="asktwice-rp-conflict">
-          ⚠️ 检测到利益冲突（偏差: ${result.conflicts.bias_score}）
+          ⚠️ ${AskTwiceUtils.i18n('conflictBias', [String(result.conflicts.bias_score)])}
         </div>
       `;
     }
 
-    // 用户选中的原文（最多500字）
+    // 原文
     const origText = this.selectedText || '';
     const origDisplay = origText.length > 500 ? origText.substring(0, 497) + '...' : origText;
     const originalHtml = origText ? `<div class="asktwice-rp-original">${this._esc(origDisplay)}</div>` : '';
-
-    // 综合判断分析放在声明详情区上方
-    const analysisHtml = result.summary ? `<div class="asktwice-rp-analysis">${this._linkify(result.summary)}</div>` : '';
 
     panel.innerHTML = `
       <div class="asktwice-rp-header asktwice-rp-drag">
         <div class="asktwice-rp-score" style="color:${lv.color}">${score}</div>
         <div class="asktwice-rp-info">
-          <span class="asktwice-rp-level" style="color:${lv.color};background:${lv.bg}">${lv.emoji} ${lv.label}</span>
+          <span class="asktwice-rp-level" style="color:${lv.color};background:${lv.bg}">${lv.emoji} ${lvLabel}</span>
         </div>
-        <button class="asktwice-rp-close" title="关闭">✕</button>
+        <button class="asktwice-rp-close" title="${AskTwiceUtils.i18n('close')}">✕</button>
       </div>
       ${originalHtml}
-      ${claimsHtml ? `<div class="asktwice-rp-claims">${analysisHtml}${claimsHtml}</div>` : analysisHtml}
+      ${judgmentHtml}
+      ${sourceCardsHtml ? `<div class="asktwice-rp-sources-list">${sourceCardsHtml}</div>` : ''}
       ${conflictHtml}
     `;
 
@@ -328,7 +383,7 @@ const SelectionBubble = {
       logo.style.background = lv.color;
     }
     const labelEl = bubble.querySelector('.asktwice-sel-label');
-    if (labelEl) labelEl.textContent = `${score} — ${lv.label}`;
+    if (labelEl) labelEl.textContent = `${score} — ${lvLabel}`;
   },
 
   _initDrag(panel) {
@@ -376,7 +431,7 @@ const SelectionBubble = {
       logo.style.background = '#EF4444';
     }
     const label = bubble.querySelector('.asktwice-sel-label');
-    if (label) label.textContent = `失败: ${msg.substring(0, 20)}`;
+    if (label) label.textContent = `${AskTwiceUtils.i18n('failed')}: ${msg.substring(0, 20)}`;
   },
 
   async saveToHistory(text, result) {
@@ -388,15 +443,26 @@ const SelectionBubble = {
         score: result.overall_score,
         level: result.level,
         summary: result.summary || '',
+        judgment: result.judgment || '',
         claims: (result.claims || []).slice(0, 5).map(c => ({
           text: c.text,
           score: c.score,
           type: c.type,
           reason: c.reason || '',
+          source_results: (c.source_results || []).map(sr => ({
+            engine: sr.engine || '',
+            engine_type: sr.engine_type || 'search',
+            score: sr.score || 0,
+            result_count: sr.result_count || 0,
+            assessment: sr.assessment || '',
+            confidence: sr.confidence || 0,
+            reasoning: sr.reasoning || '',
+            findings: (sr.findings || []).slice(0, 3).map(f => ({
+              url: f.url || '', title: f.title || '', domain: f.domain || '',
+            })),
+          })),
           sources: (c.sources || []).slice(0, 3).map(s => ({
-            url: s.url || '',
-            title: s.title || '',
-            domain: s.domain || '',
+            url: s.url || '', title: s.title || '', domain: s.domain || '',
           })),
         })),
         conflict: result.conflicts?.has_conflict || false,
@@ -427,7 +493,6 @@ const SelectionBubble = {
         const href = match.startsWith('http') ? match : `https://${match}`;
         return `<a class="asktwice-rp-src" href="${href}" target="_blank" rel="noopener" style="display:inline;padding:0;background:none;color:#4F46E5;">${match}</a>`;
       }
-    );
+    ).replace(/\n/g, '<br>');
   },
 };
-

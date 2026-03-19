@@ -6,7 +6,18 @@
  * 2. 显示今日用量
  * 3. 显示验证历史
  */
+
+// i18n 快捷方法（popup 独立环境）
+const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // ── i18n：填充 data-i18n 属性的元素 ──
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const msg = t(key);
+    if (msg) el.textContent = msg;
+  });
+
   const verifyBtn = document.getElementById('verifyBtn');
   const actionHint = document.getElementById('actionHint');
   const resultSection = document.getElementById('resultSection');
@@ -28,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab || !tab.id) {
-        showHint('无法获取当前页面', 'error');
+        showHint(t('cannotGetPage'), 'error');
         return;
       }
 
@@ -40,15 +51,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const selectedText = results?.[0]?.result;
       if (!selectedText || selectedText.length < 5) {
-        showHint('请先在网页上选中要验证的文字（至少 5 个字）', 'error');
+        showHint(t('selectMinChars'), 'error');
         return;
       }
 
       // 开始验证
       verifyBtn.disabled = true;
       verifyBtn.classList.add('loading');
-      verifyBtn.textContent = '验证中...';
-      showHint('正在分析文本可信度...', 'success');
+      verifyBtn.textContent = t('verifying');
+      showHint(t('analyzing'), 'success');
 
       // 发消息给 Service Worker 执行验证
       const response = await chrome.runtime.sendMessage({
@@ -65,11 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveHistory(selectedText, response.payload.result);
         loadUsage(); // 刷新用量
       } else if (response && response.type === 'VERIFY_ERROR') {
-        showHint(`验证失败: ${response.payload.error}`, 'error');
+        showHint(`${t('verifyFailed')}: ${response.payload.error}`, 'error');
       }
     } catch (err) {
       console.error('[Ask Twice Popup]', err);
-      showHint(`出错: ${err.message}`, 'error');
+      showHint(`${t('errorPrefix')}: ${err.message}`, 'error');
     } finally {
       verifyBtn.disabled = false;
       verifyBtn.classList.remove('loading');
@@ -79,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <path d="M21 21l-4.35-4.35"/>
           <path d="M8 11l2 2 4-4"/>
         </svg>
-        验证选中文字
+        ${t('verifySelectedText')}
       `;
     }
   });
@@ -99,6 +110,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
   });
 
+  // 设置按钮
+  document.getElementById('openSettings')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('settings.html') });
+  });
+
   // ═══════ 辅助函数 ═══════
 
   function showHint(msg, type = '') {
@@ -115,15 +132,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 评级颜色
     const levels = [
-      { min: 80, label: '高可信', color: '#10B981', bg: '#ECFDF5' },
-      { min: 60, label: '待验证', color: '#F59E0B', bg: '#FFFBEB' },
-      { min: 40, label: '低可信', color: '#F97316', bg: '#FFF7ED' },
-      { min: 0,  label: '不可信', color: '#EF4444', bg: '#FEF2F2' },
+      { min: 80, labelKey: 'highCredibility', color: '#10B981', bg: '#ECFDF5' },
+      { min: 60, labelKey: 'needsVerification', color: '#F59E0B', bg: '#FFFBEB' },
+      { min: 40, labelKey: 'lowCredibility', color: '#F97316', bg: '#FFF7ED' },
+      { min: 0,  labelKey: 'unreliable', color: '#EF4444', bg: '#FEF2F2' },
     ];
     const lv = levels.find(l => score >= l.min) || levels[levels.length - 1];
     
     resultScore.style.color = lv.color;
-    resultLevel.textContent = lv.label;
+    resultLevel.textContent = t(lv.labelKey);
     resultLevel.style.color = lv.color;
     resultLevel.style.background = lv.bg;
 
@@ -145,20 +162,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
       });
     } else {
-      html += '<div style="padding:4px 0;color:#9CA3AF;font-size:11px;">未提取到可验证的声明</div>';
+      html += `<div style="padding:4px 0;color:#9CA3AF;font-size:11px;">${t('noClaimsFound')}</div>`;
     }
 
     // 冲突警告
     if (result.conflicts && result.conflicts.has_conflict) {
       html += `
         <div class="conflict-warning">
-          ⚠️ 检测到利益冲突倾向（偏差评分: ${result.conflicts.bias_score}）
+          ${t('conflictBiasPopup', [String(result.conflicts.bias_score)])}
         </div>
       `;
     }
 
     resultDetail.innerHTML = html;
-    showHint('验证完成 ✓', 'success');
+    showHint(t('verifyDone'), 'success');
   }
 
   async function loadUsage() {
@@ -184,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       historySection.style.display = 'block';
       historyList.innerHTML = history.slice(0, 5).map(item => {
         const lv = item.score >= 80 ? '#10B981' : item.score >= 60 ? '#F59E0B' : item.score >= 40 ? '#F97316' : '#EF4444';
-        const time = new Date(item.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        const time = new Date(item.time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
         const origText = escapeHtml(item.text || '');
         const origShort = origText.substring(0, 40) + (origText.length > 40 ? '…' : '');
         const summaryShort = item.summary ? escapeHtml(item.summary.substring(0, 60)) : '';
@@ -199,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <div class="h-right">
               <span class="h-time">${time}</span>
-              ${sourceUrl ? `<a class="h-link" href="${escapeHtml(sourceUrl)}" target="_blank" title="跳转原文">↗</a>` : ''}
+              ${sourceUrl ? `<a class="h-link" href="${escapeHtml(sourceUrl)}" target="_blank" title="${t('jumpToSource')}">↗</a>` : ''}
             </div>
           </div>
         `;

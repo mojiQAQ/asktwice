@@ -44,16 +44,22 @@ async function handleVerifyRequest({ answerId, text, platform, selectedText, con
   // 1. 检查缓存
   const cached = await getCachedResultSW(cacheKey);
   if (cached) {
-    console.log(`[Ask Twice SW] 命中缓存: ${cacheKey}`);
-    cached.meta = cached.meta || {};
-    cached.meta.cached = true;
-    return cached;
+    // 检查缓存数据是否包含新版 source_results 字段
+    const hasSourceResults = cached.claims?.some(c => c.source_results?.length > 0);
+    if (hasSourceResults) {
+      console.log(`[Ask Twice SW] 命中缓存: ${cacheKey}`);
+      cached.meta = cached.meta || {};
+      cached.meta.cached = true;
+      return cached;
+    } else {
+      console.log(`[Ask Twice SW] 缓存数据为旧格式（无 source_results），重新请求`);
+    }
   }
 
   // 2. 检查用量限额
   const usage = await getDailyUsageSW();
   if (usage >= ASKTWICE_CONFIG.FREE_DAILY_LIMIT) {
-    throw new Error('今日免费次数已用完（5/5），升级 Pro 享受无限验证');
+    throw new Error(chrome.i18n.getMessage('dailyLimitReached') || 'Daily free limit reached. Upgrade to Pro for unlimited verifications.');
   }
 
   // 3. 调用后端 API
@@ -75,6 +81,18 @@ async function handleVerifyRequest({ answerId, text, platform, selectedText, con
 // ═══════ 后端 API 调用 ═══════
 
 async function callVerifyAPI(text, platform, selectedText, conversation) {
+  // 读取用户自定义配置
+  let userBraveKey = '';
+  let userLlmConfigs = [];
+  try {
+    const data = await chrome.storage.sync.get('asktwiceSettings');
+    const cfg = data.asktwiceSettings || {};
+    userBraveKey = cfg.braveApiKey || '';
+    userLlmConfigs = (cfg.llmConfigs || []).filter(c => c.api_key && c.model);
+  } catch (e) {
+    // 忽略
+  }
+
   const response = await fetch(`${ASKTWICE_CONFIG.API_BASE_URL}/api/verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -83,15 +101,17 @@ async function callVerifyAPI(text, platform, selectedText, conversation) {
       selected_text: selectedText || '',
       conversation: conversation || [],
       platform,
-      language: 'zh',
+      language: chrome.i18n.getUILanguage().startsWith('zh') ? 'zh' : 'en',
       depth: 'standard',
       features: ['source_verify', 'conflict_detect', 'cross_verify'],
+      brave_api_key: userBraveKey,
+      llm_configs: userLlmConfigs,
     }),
   });
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => '未知错误');
-    throw new Error(`API 错误 (${response.status}): ${errText}`);
+    const errText = await response.text().catch(() => 'Unknown error');
+    throw new Error(`API error (${response.status}): ${errText}`);
   }
 
   return response.json();
@@ -167,7 +187,7 @@ function hashTextSW(text) {
 let ASKTWICE_CONFIG = {
   API_BASE_URL: 'http://localhost:8001',
   FREE_DAILY_LIMIT: 10,
-  CACHE_TTL: 30 * 60 * 1000,
+  CACHE_TTL: 0,
 };
 
 // 启动时从 config.js 加载配置
@@ -181,7 +201,10 @@ let ASKTWICE_CONFIG = {
     const cacheMatch = text.match(/CACHE_TTL:\s*(.+?),/);
     if (apiMatch) ASKTWICE_CONFIG.API_BASE_URL = apiMatch[1];
     if (limitMatch) ASKTWICE_CONFIG.FREE_DAILY_LIMIT = parseInt(limitMatch[1]);
-    console.log('[Ask Twice] Config loaded:', ASKTWICE_CONFIG.API_BASE_URL);
+    if (cacheMatch) {
+      try { ASKTWICE_CONFIG.CACHE_TTL = Number(cacheMatch[1]) || 0; } catch(e) {}
+    }
+    console.log('[Ask Twice] Config loaded:', ASKTWICE_CONFIG.API_BASE_URL, 'TTL:', ASKTWICE_CONFIG.CACHE_TTL);
   } catch (e) {
     console.warn('[Ask Twice] Config load failed, using defaults:', e.message);
   }
@@ -189,7 +212,8 @@ let ASKTWICE_CONFIG = {
 
 // ═══════ 安装事件 ═══════
 
-chrome.runtime.onInstalled.addListener(() => {
-  console.log('[Ask Twice] 插件已安装/更新');
+chrome.runtime.onInstalled.addListener(async () => {
+  console.log('[Ask Twice] Extension installed/updated — clearing old cache');
+  await chrome.storage.local.remove('verifyCache');
 });
 

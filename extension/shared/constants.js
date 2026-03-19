@@ -3,14 +3,14 @@
  */
 const ASKTWICE = {
   // API 配置（从 config.js 读取，回退到默认值）
-  API_BASE_URL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.API_BASE_URL) || 'http://localhost:8001',
+  API_BASE_URL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.API_BASE_URL) || 'https://asktwice.gmonkey.top',
   
-  // 评分等级
+  // 评分等级（label 为 i18n key，通过 chrome.i18n.getMessage() 翻译）
   SCORE_LEVELS: {
-    HIGH:              { min: 80, label: '高可信', color: '#10B981', emoji: '🟢' },
-    NEEDS_VERIFICATION:{ min: 60, label: '待验证', color: '#F59E0B', emoji: '🟡' },
-    LOW:               { min: 40, label: '低可信', color: '#F97316', emoji: '🟠' },
-    UNRELIABLE:        { min: 0,  label: '不可信', color: '#EF4444', emoji: '🔴' },
+    HIGH:              { min: 80, labelKey: 'highCredibility', color: '#10B981', emoji: '🟢' },
+    NEEDS_VERIFICATION:{ min: 60, labelKey: 'needsVerification', color: '#F59E0B', emoji: '🟡' },
+    LOW:               { min: 40, labelKey: 'lowCredibility', color: '#F97316', emoji: '🟠' },
+    UNRELIABLE:        { min: 0,  labelKey: 'unreliable', color: '#EF4444', emoji: '🔴' },
   },
 
   // 消息类型（Content Script ↔ Service Worker）

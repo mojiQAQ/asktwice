@@ -3,14 +3,29 @@
  */
 const AskTwiceUtils = {
   /**
-   * 根据分数获取评分等级
+   * i18n 快捷方法
+   * @param {string} key - messages.json 中的 key
+   * @param {string|string[]} [substitutions] - 占位符替换值
+   * @returns {string} 翻译后的字符串
+   */
+  i18n(key, substitutions) {
+    if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getMessage) {
+      return chrome.i18n.getMessage(key, substitutions) || key;
+    }
+    return key;
+  },
+
+  /**
+   * 根据分数获取评分等级（含翻译后的 label）
    */
   getScoreLevel(score) {
     const levels = ASKTWICE.SCORE_LEVELS;
-    if (score >= levels.HIGH.min) return levels.HIGH;
-    if (score >= levels.NEEDS_VERIFICATION.min) return levels.NEEDS_VERIFICATION;
-    if (score >= levels.LOW.min) return levels.LOW;
-    return levels.UNRELIABLE;
+    let level;
+    if (score >= levels.HIGH.min) level = levels.HIGH;
+    else if (score >= levels.NEEDS_VERIFICATION.min) level = levels.NEEDS_VERIFICATION;
+    else if (score >= levels.LOW.min) level = levels.LOW;
+    else level = levels.UNRELIABLE;
+    return { ...level, label: this.i18n(level.labelKey) };
   },
 
   /**
