@@ -276,10 +276,15 @@ const SelectionBubble = {
 
     // 没有分源结果时，回退到旧的 claims 展示
     if (!sourceCardsHtml && result.claims && result.claims.length > 0) {
+      // 保底：从 meta.sources_used 获取源名称
+      const metaSources = (result.meta && result.meta.sources_used) || [];
       sourceCardsHtml = result.claims.slice(0, 5).map(c => {
         const cLv = levels.find(l => c.score >= l.min) || levels[3];
-        // 从 source_results 提取源名称
-        const sourceNames = (c.source_results || []).map(sr => sr.engine.replace('llm:', '')).filter(Boolean);
+        // 优先从 claim 的 source_results 提取源名称，其次从 meta.sources_used
+        let sourceNames = (c.source_results || []).map(sr => sr.engine.replace('llm:', '')).filter(Boolean);
+        if (sourceNames.length === 0 && metaSources.length > 0) {
+          sourceNames = metaSources.map(s => s.replace('llm:', ''));
+        }
         const domainText = c.domain || c.text.substring(0, 30);
         const displayName = sourceNames.length > 0
           ? `${sourceNames.join('、')}：${domainText}`
@@ -444,10 +449,12 @@ const SelectionBubble = {
         level: result.level,
         summary: result.summary || '',
         judgment: result.judgment || '',
+        sources_used: (result.meta && result.meta.sources_used) || [],
         claims: (result.claims || []).slice(0, 5).map(c => ({
           text: c.text,
           score: c.score,
           type: c.type,
+          domain: c.domain || '',
           reason: c.reason || '',
           source_results: (c.source_results || []).map(sr => ({
             engine: sr.engine || '',

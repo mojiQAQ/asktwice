@@ -46,13 +46,17 @@ async function handleVerifyRequest({ answerId, text, platform, selectedText, con
   if (cached) {
     // 检查缓存数据是否包含新版 source_results 字段
     const hasSourceResults = cached.claims?.some(c => c.source_results?.length > 0);
-    if (hasSourceResults) {
+    // 检查是否包含已废弃的搜索源（如 duckduckgo）
+    const hasDeprecatedSource = cached.claims?.some(c =>
+      c.source_results?.some(sr => sr.engine === 'duckduckgo')
+    );
+    if (hasSourceResults && !hasDeprecatedSource) {
       console.log(`[Ask Twice SW] 命中缓存: ${cacheKey}`);
       cached.meta = cached.meta || {};
       cached.meta.cached = true;
       return cached;
     } else {
-      console.log(`[Ask Twice SW] 缓存数据为旧格式（无 source_results），重新请求`);
+      console.log(`[Ask Twice SW] 缓存数据过期或含废弃源，重新请求`);
     }
   }
 
@@ -213,7 +217,16 @@ let ASKTWICE_CONFIG = {
 // ═══════ 安装事件 ═══════
 
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log('[Ask Twice] Extension installed/updated — clearing old cache');
-  await chrome.storage.local.remove('verifyCache');
+  console.log('[Ask Twice] Extension installed/updated — clearing all cache');
+  await chrome.storage.local.remove(['verifyCache', 'verifyHistory']);
 });
 
+// 每次 Service Worker 启动时无条件清除验证缓存（确保不使用旧数据）
+(async () => {
+  try {
+    await chrome.storage.local.remove('verifyCache');
+    console.log('[Ask Twice] verifyCache cleared on SW startup');
+  } catch (e) {
+    // 忽略
+  }
+})();

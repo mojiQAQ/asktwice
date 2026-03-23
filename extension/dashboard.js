@@ -163,11 +163,15 @@ async function render() {
 
     // 回退旧数据
     if (!sourceCardsHtml && item.claims && item.claims.length > 0) {
+      const metaSources = item.sources_used || [];
       sourceCardsHtml = '<div class="hc-claims">' +
         item.claims.map(c => {
           const cLv = getLevel(c.score);
-          // 从 source_results 提取源名称
-          const sourceNames = (c.source_results || []).map(sr => (sr.engine || '').replace('llm:', '')).filter(Boolean);
+          // 优先从 source_results 提取源名称，其次从 sources_used
+          let sourceNames = (c.source_results || []).map(sr => (sr.engine || '').replace('llm:', '')).filter(Boolean);
+          if (sourceNames.length === 0 && metaSources.length > 0) {
+            sourceNames = metaSources.map(s => s.replace('llm:', ''));
+          }
           const domainText = c.domain || c.text.substring(0, 30);
           const displayName = sourceNames.length > 0
             ? `${sourceNames.join('、')}：${domainText}`

@@ -60,63 +60,6 @@ async def search_brave(query: str, count: int = 5, api_key: str = "") -> dict:
     return {**engine_info, "results": results, "assessment": "", "confidence": 0, "reasoning": reasoning}
 
 
-# ═══════ DuckDuckGo Search ═══════
-
-async def search_duckduckgo(query: str, count: int = 5) -> dict:
-    """DuckDuckGo Instant Answer API"""
-    engine_info = {"engine": "duckduckgo", "engine_type": "search"}
-
-    if len(query) > 200:
-        query = query[:200]
-
-    try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            response = await client.get(
-                "https://api.duckduckgo.com/",
-                params={"q": query, "format": "json", "no_redirect": 1, "skip_disambig": 1},
-                headers={"User-Agent": "AskTwice/0.1"},
-            )
-            response.raise_for_status()
-            data = response.json()
-    except Exception as e:
-        print(f"[Ask Twice] DuckDuckGo failed: {e}")
-        return {**engine_info, "results": [], "assessment": "", "confidence": 0, "reasoning": f"搜索失败: {str(e)[:50]}"}
-
-    results = []
-
-    if data.get("AbstractURL") and data.get("Abstract"):
-        parsed = urlparse(data["AbstractURL"])
-        results.append({
-            "url": data["AbstractURL"],
-            "title": data.get("AbstractSource", data.get("Heading", "")),
-            "description": data["Abstract"],
-            "domain": parsed.netloc,
-        })
-
-    for topic in data.get("RelatedTopics", [])[:count]:
-        if isinstance(topic, dict) and topic.get("FirstURL"):
-            parsed = urlparse(topic["FirstURL"])
-            results.append({
-                "url": topic["FirstURL"],
-                "title": topic.get("Text", "")[:80],
-                "description": topic.get("Text", ""),
-                "domain": parsed.netloc,
-            })
-
-    for r in data.get("Results", [])[:count]:
-        if isinstance(r, dict) and r.get("FirstURL"):
-            parsed = urlparse(r["FirstURL"])
-            results.append({
-                "url": r["FirstURL"],
-                "title": r.get("Text", "")[:80],
-                "description": r.get("Text", ""),
-                "domain": parsed.netloc,
-            })
-
-    results = results[:count]
-    reasoning = f"找到 {len(results)} 条相关结果" if results else "未找到相关结果"
-    return {**engine_info, "results": results, "assessment": "", "confidence": 0, "reasoning": reasoning}
-
 
 # ═══════ LLM 知识搜索 ═══════
 
@@ -144,7 +87,7 @@ async def search_llm(query: str, claim_text: str, llm_config: dict = None) -> di
             ],
             temperature=0.1,
             max_tokens=1500,
-            timeout=15.0,
+            timeout=30.0,
         )
 
         text = response.choices[0].message.content or ""
@@ -205,16 +148,20 @@ async def search_multi(
     """
     tasks = [
         search_brave(query, count, brave_api_key),
-        search_duckduckgo(query, count),
     ]
 
-    configs = llm_configs or []
-    if not configs:
-        configs = [{"base_url": settings.OPENAI_BASE_URL, "api_key": settings.OPENAI_API_KEY, "model": settings.OPENAI_MODEL}]
+    # 始终包含服务端默认 LLM（.env 配置）
+    default_llm = {"base_url": settings.OPENAI_BASE_URL, "api_key": settings.OPENAI_API_KEY, "model": settings.OPENAI_MODEL}
+    configs = [default_llm] if default_llm.get("api_key") else []
+
+    # 追加用户自定义 LLM（去重：如果 model 相同则跳过）
+    for cfg in (llm_configs or []):
+        if cfg.get("api_key") and cfg.get("model"):
+            if not any(c.get("model") == cfg["model"] for c in configs):
+                configs.append(cfg)
 
     for cfg in configs:
-        if cfg.get("api_key"):
-            tasks.append(search_llm(query, claim_text or query, cfg))
+        tasks.append(search_llm(query, claim_text or query, cfg))
 
     raw_results = await asyncio.gather(*tasks, return_exceptions=True)
 

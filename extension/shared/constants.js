@@ -3,7 +3,7 @@
  */
 const ASKTWICE = {
   // API 配置（从 config.js 读取，回退到默认值）
-  API_BASE_URL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.API_BASE_URL) || 'https://asktwice.gmonkey.top',
+  API_BASE_URL: (typeof ASKTWICE_ENV !== 'undefined' && ASKTWICE_ENV.API_BASE_URL) || 'http://localhost:8001',
   
   // 评分等级（label 为 i18n key，通过 chrome.i18n.getMessage() 翻译）
   SCORE_LEVELS: {
